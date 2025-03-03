@@ -36,6 +36,7 @@ const questions = [
 function renderQuestions() {
   questionsElement.innerHTML = ""; // Clear existing content
 
+  // Retrieve saved progress from session storage
   const savedProgress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
   questions.forEach((q, i) => {
@@ -48,12 +49,14 @@ function renderQuestions() {
       choiceElement.name = `question-${i}`;
       choiceElement.value = choice;
 
-      // Restore selected answer from session storage
+      // Ensure previous selections are restored
       if (savedProgress[i] === choice) {
-        choiceElement.checked = true; // ✅ Fix for Cypress test
+        setTimeout(() => {
+          choiceElement.checked = true; // ✅ Cypress should now detect this
+        }, 0); // Ensures DOM update before Cypress checks
       }
 
-      // Save answer when selected
+      // Save selection when user picks an option
       choiceElement.addEventListener("change", () => {
         savedProgress[i] = choice;
         sessionStorage.setItem("progress", JSON.stringify(savedProgress));
@@ -100,5 +103,7 @@ function loadSavedScore() {
 submitButton.addEventListener("click", calculateScore);
 
 // Initialize quiz on page load
-renderQuestions();
-loadSavedScore();
+document.addEventListener("DOMContentLoaded", () => {
+  renderQuestions();
+  loadSavedScore();
+});
